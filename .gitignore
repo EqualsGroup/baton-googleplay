@@ -1,5 +1,5 @@
 # Binaries
-baton-googleplay
+/baton-googleplay
 *.exe
 *.exe~
 *.dll
