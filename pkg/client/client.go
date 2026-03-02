@@ -53,16 +53,12 @@ func (c *Client) ListUsers(ctx context.Context, pageToken string, pageSize int) 
 	u := fmt.Sprintf("%s/developers/%s/users", baseURL, c.developerID)
 
 	params := url.Values{}
-	if pageSize > 0 {
-		params.Set("pageSize", fmt.Sprintf("%d", pageSize))
-	}
+	params.Set("pageSize", fmt.Sprintf("%d", pageSize))
 	if pageToken != "" {
 		params.Set("pageToken", pageToken)
 	}
 
-	if len(params) > 0 {
-		u = u + "?" + params.Encode()
-	}
+	u = u + "?" + params.Encode()
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, u, nil)
 	if err != nil {
@@ -223,7 +219,7 @@ func (c *Client) PatchUser(ctx context.Context, email string, permissions []stri
 
 // Validate checks that the credentials and developer ID are valid by attempting to list users.
 func (c *Client) Validate(ctx context.Context) error {
-	_, err := c.ListUsers(ctx, "", 1)
+	_, err := c.ListUsers(ctx, "", -1)
 	return err
 }
 
