@@ -3,6 +3,7 @@ package connector
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	v2 "github.com/conductorone/baton-sdk/pb/c1/connector/v2"
 	"github.com/conductorone/baton-sdk/pkg/annotations"
@@ -29,7 +30,7 @@ func newUserResource(user client.User, parentResourceID *v2.ResourceId) (*v2.Res
 
 	profile := map[string]interface{}{
 		"access_state":                  user.AccessState,
-		"developer_account_permissions": user.DeveloperAccountPermissions,
+		"developer_account_permissions": strings.Join(user.DeveloperAccountPermissions, ","),
 	}
 
 	if user.ExpirationTime != "" {
@@ -37,14 +38,11 @@ func newUserResource(user client.User, parentResourceID *v2.ResourceId) (*v2.Res
 	}
 
 	if len(user.Grants) > 0 {
-		grantInfo := make([]map[string]interface{}, 0, len(user.Grants))
+		grantParts := make([]string, 0, len(user.Grants))
 		for _, g := range user.Grants {
-			grantInfo = append(grantInfo, map[string]interface{}{
-				"package_name":          g.PackageName,
-				"app_level_permissions": g.AppLevelPermissions,
-			})
+			grantParts = append(grantParts, fmt.Sprintf("%s:%s", g.PackageName, strings.Join(g.AppLevelPermissions, ";")))
 		}
-		profile["app_grants"] = grantInfo
+		profile["app_grants"] = strings.Join(grantParts, ",")
 	}
 
 	opts := []resourceSdk.UserTraitOption{
@@ -77,7 +75,7 @@ func (b *userBuilder) List(ctx context.Context, parentResourceID *v2.ResourceId,
 		pageToken = pToken.Token
 	}
 
-	usersResp, err := b.client.ListUsers(ctx, pageToken, 100)
+	usersResp, err := b.client.ListUsers(ctx, pageToken, -1)
 	if err != nil {
 		return nil, "", nil, fmt.Errorf("baton-googleplay: failed to list users: %w", err)
 	}

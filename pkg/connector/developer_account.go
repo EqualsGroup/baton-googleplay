@@ -79,7 +79,7 @@ func (b *developerAccountBuilder) Grants(ctx context.Context, resource *v2.Resou
 		pageToken = pToken.Token
 	}
 
-	usersResp, err := b.client.ListUsers(ctx, pageToken, 100)
+	usersResp, err := b.client.ListUsers(ctx, pageToken, -1)
 	if err != nil {
 		return nil, "", nil, fmt.Errorf("baton-googleplay: failed to list users for grants: %w", err)
 	}
